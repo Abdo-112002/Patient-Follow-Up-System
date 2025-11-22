@@ -1,0 +1,155 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String?
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Patient {
+  id Int @id @default(autoincrement())
+
+  // Basic Information
+  patientName   String
+  age           String
+  patientStatus Int
+  gender        String
+  fileOpenDate  DateTime
+  idNumber      String
+  birthDate     DateTime
+
+  // Contact Information
+  phoneNumber String
+
+  // Address
+  address  String
+  province String
+
+  // Personal Information
+  maritalStatus  String
+  salary         String?
+  occupation     String?
+  educationLevel String?
+
+  // Relations
+  companions Companion[]
+  visits     Visit[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("patients")
+}
+
+model Companion {
+  id           Int    @id @default(autoincrement())
+  name         String
+  phone        String
+  relationship String
+
+  patientId Int
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("companions")
+}
+
+model Visit {
+  id Int @id @default(autoincrement())
+
+  // Basic info
+  visitDate DateTime
+  visitTime String?
+
+  // Health assessment sliders
+  painLevel         Int?
+  fatigue           Int?
+  drowsiness        Int?
+  nausea            Int?
+  appetiteLoss      Int?
+  shortnessOfBreath Int?
+  depression        Int?
+  generalHealth     Int?
+  exhaustion        Int?
+
+  // Service related
+  providedService      String? // "yes" or "no"
+  serviceType          String?
+  psychologicalSupport String? // "yes" or "no"
+
+  // Selects
+  nutrition          String?
+  mobilityStatus     String?
+  relationWithFamily String?
+
+  // Needs checkboxes
+  need_psychological        Boolean? @default(false)
+  need_occupational_therapy Boolean? @default(false)
+  need_hospital_transfer    Boolean? @default(false)
+  need_artificial_nutrition Boolean? @default(false)
+  need_assistive_devices    Boolean? @default(false)
+  need_air_mattress         Boolean? @default(false)
+  need_physiotherapy        Boolean? @default(false)
+  need_specialist_consult   Boolean? @default(false)
+  need_hygiene_pads         Boolean? @default(false)
+  need_urinary_catheter     Boolean? @default(false)
+  need_oxygen_device        Boolean? @default(false)
+
+  // Social/Legal/Training needs
+  need_social_support     String? // "yes" or "no"
+  need_home_adaptation    String? // "yes" or "no"
+  need_legal_consult      String? // "yes" or "no"
+  need_caregiver_training String? // "yes" or "no"
+
+  // Notes & follow-up
+  notes                        String?
+  improvedSinceLastVisit       String?
+  previousVisitRecommendations String?
+  nextVisitDate                DateTime?
+  nextVisitType                String?
+
+  status String @default("pending")
+
+  patientId Int
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("visits")
+}
+
+model Appointment {
+  id             Int      @id @default(autoincrement())
+  title          String
+  date           DateTime
+  time           String
+  needSpecialist Boolean  @default(false)
+  specialistType String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
