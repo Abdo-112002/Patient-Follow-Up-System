@@ -1,5 +1,4 @@
-import Home from "@/app/features/dashboard/pages/home";
-
+import Home from "@/app/features/dashboard/pages/Home";
 
 export default function Dashboard() {
 
